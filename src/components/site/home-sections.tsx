@@ -560,29 +560,31 @@ const IG_CARDS = [
   { id: "ig7", img: "/brand/products/palli-curry1.png", label: "Palli Curry" },
 ];
 
-const FAN_SPREAD = 110;
-const FAN_CURVE = 18;
-const FAN_DEG = 7;
-const CARD_W = 170;
+const FAN_X = 68;
+const ROTATIONS = [-10, -7, -4, 0, 4, 7, 10];
 
-function fanPos(i: number, total: number) {
-  const c = (total - 1) / 2;
-  const d = i - c;
-  return { x: d * FAN_SPREAD, y: -Math.abs(d) * FAN_CURVE, r: d * FAN_DEG };
+function fanX(i: number, total: number) {
+  return (i - (total - 1) / 2) * FAN_X;
 }
 
-function hoverPos(i: number, h: number, total: number) {
-  if (i === h) return { x: 0, y: -10, r: 0, s: 1.1, z: 100, o: 1 };
-  const away = i < h ? -1 : 1;
-  const dist = Math.max(Math.abs(i - h), 1);
-  const base = fanPos(i, total);
+function fanState(i: number, total: number, hovered: number | null) {
+  const baseX = fanX(i, total);
+  const baseR = ROTATIONS[i];
+
+  if (hovered === null) {
+    return { x: baseX, r: baseR, s: 1, z: total - Math.abs(i - (total - 1) / 2), o: 1 };
+  }
+  if (i === hovered) {
+    return { x: 0, r: 0, s: 1.05, z: 100, o: 1 };
+  }
+  const away = i < hovered ? -1 : 1;
+  const dist = Math.max(Math.abs(i - hovered), 1);
   return {
-    x: base.x + away * (55 / dist),
-    y: base.y - 5,
-    r: base.r * 0.4,
-    s: 0.88,
+    x: baseX + away * (36 / dist),
+    r: baseR,
+    s: 0.94,
     z: total - Math.abs(i - (total - 1) / 2),
-    o: 0.4,
+    o: 0.5,
   };
 }
 
@@ -611,58 +613,50 @@ export function InstagramFeed() {
           </h2>
         </div>
 
-        <div className="relative mx-auto" style={{ height: "420px", maxWidth: "860px" }}>
+        <div className="relative mx-auto flex items-end justify-center" style={{ height: "440px", maxWidth: "700px" }}>
           {IG_CARDS.map((card, i) => {
-            const fp = fanPos(i, n);
-            const hp = hovered !== null ? hoverPos(i, hovered, n) : null;
-
+            const p = fanState(i, n, hovered);
             return (
               <motion.div
                 key={card.id}
                 className="absolute cursor-pointer"
-                style={{ width: CARD_W, left: "50%", bottom: "40px", marginLeft: -CARD_W / 2 }}
-                initial={{ x: 0, y: 0, rotate: 0, scale: 0.9, opacity: 0 }}
+                style={{ width: "min(175px, 24vw)", bottom: 0, left: "50%", marginLeft: "min(-87px, -12vw)" }}
+                initial={{ x: 0, rotate: 0, scale: 0.92, opacity: 0 }}
                 animate={
                   isInView
-                    ? {
-                        x: hp ? hp.x : fp.x,
-                        y: hp ? hp.y : fp.y,
-                        rotate: hp ? hp.r : fp.r,
-                        scale: hp ? hp.s : 1,
-                        zIndex: hp ? hp.z : n - Math.abs(i - (n - 1) / 2),
-                        opacity: hp ? hp.o : 1,
-                      }
+                    ? { x: p.x, rotate: p.r, scale: p.s, zIndex: p.z, opacity: p.o }
                     : undefined
                 }
                 transition={{
-                  type: "spring",
-                  stiffness: 90,
-                  damping: 16,
-                  delay: isInView ? i * 0.06 : 0,
+                  ease: [0.33, 1, 0.68, 1],
+                  duration: 0.8,
+                  delay: isInView ? i * 0.055 : 0,
                 }}
                 onHoverStart={() => setHovered(i)}
                 onHoverEnd={() => setHovered(null)}
               >
                 <div
-                  className="overflow-hidden rounded-2xl sm:rounded-3xl"
+                  className="overflow-hidden rounded-[28px] sm:rounded-[32px]"
                   style={{
-                    transformOrigin: "bottom center",
                     boxShadow:
                       hovered === i
-                        ? "0 30px 60px -15px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08) inset"
-                        : "0 10px 30px -10px rgba(0,0,0,0.2)",
-                    transition: "box-shadow 0.5s cubic-bezier(0.22,1,0.36,1)",
+                        ? "0 25px 50px -12px rgba(0,0,0,0.35)"
+                        : "0 8px 24px -6px rgba(0,0,0,0.15)",
+                    transition: "box-shadow 0.45s cubic-bezier(0.22,1,0.36,1)",
                   }}
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
+                  <div className="relative aspect-[9/16] overflow-hidden bg-zinc-100">
                     <img
                       src={card.img}
                       alt={card.label}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out"
-                      style={{ transform: hovered === i ? "scale(1.08)" : "scale(1)" }}
+                      className="h-full w-full object-cover transition-transform duration-600 ease-out"
+                      style={{
+                        transform: hovered === i ? "scale(1.05)" : "scale(1)",
+                        transitionTimingFunction: "cubic-bezier(0.33,1,0.68,1)",
+                      }}
                     />
                     <div
-                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
+                      className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"
                       style={{
                         opacity: hovered === i ? 1 : 0,
                         transition: "opacity 0.4s ease",
@@ -672,8 +666,8 @@ export function InstagramFeed() {
                       className="absolute bottom-0 left-0 right-0 p-4"
                       style={{
                         opacity: hovered === i ? 1 : 0,
-                        transform: hovered === i ? "translateY(0)" : "translateY(6px)",
-                        transition: "opacity 0.35s ease 0.08s, transform 0.35s ease 0.08s",
+                        transform: hovered === i ? "translateY(0)" : "translateY(4px)",
+                        transition: "opacity 0.35s ease 0.06s, transform 0.35s ease 0.06s",
                       }}
                     >
                       <p className="text-[13px] font-medium text-white">{card.label}</p>
