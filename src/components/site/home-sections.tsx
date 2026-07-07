@@ -553,59 +553,50 @@ export function Testimonials() {
 const IG_CARDS = [
   { id: "ig1", img: "/brand/products/red-curry1.png", label: "Red Curry" },
   { id: "ig2", img: "/brand/products/green-curry1.png", label: "Green Curry" },
-  { id: "ig3", img: "/brand/easymom-banner.png", label: "EasyMom" },
-  { id: "ig4", img: "/brand/products/ghee-roast1.png", label: "Ghee Roast" },
-  { id: "ig5", img: "/brand/products/fish-curry1.png", label: "Fish Curry" },
+  { id: "ig3", img: "/brand/products/chicken-sukka-masala1.png", label: "Chicken Sukka" },
+  { id: "ig4", img: "/brand/easymom-banner.png", label: "EasyMom" },
+  { id: "ig5", img: "/brand/products/ghee-roast1.png", label: "Ghee Roast" },
+  { id: "ig6", img: "/brand/products/fish-curry1.png", label: "Fish Curry" },
+  { id: "ig7", img: "/brand/products/palli-curry1.png", label: "Palli Curry" },
 ];
 
-function getFanTransform(index: number, total: number, hovered: number | null) {
-  const center = (total - 1) / 2;
-  const offset = index - center;
-  const spread = 130;
-  const fanDeg = 9;
+const FAN_SPREAD = 110;
+const FAN_CURVE = 18;
+const FAN_DEG = 7;
+const CARD_W = 170;
 
-  if (hovered === null) {
-    return {
-      x: offset * spread,
-      rotate: offset * fanDeg,
-      scale: 1,
-      zIndex: total - Math.abs(offset),
-      opacity: 1,
-    };
-  }
+function fanPos(i: number, total: number) {
+  const c = (total - 1) / 2;
+  const d = i - c;
+  return { x: d * FAN_SPREAD, y: -Math.abs(d) * FAN_CURVE, r: d * FAN_DEG };
+}
 
-  if (index === hovered) {
-    return {
-      x: offset * spread * 0.15,
-      rotate: 0,
-      scale: 1.08,
-      zIndex: 100,
-      opacity: 1,
-    };
-  }
-
-  const away = index < hovered ? -1 : 1;
-  const dist = Math.abs(index - hovered);
+function hoverPos(i: number, h: number, total: number) {
+  if (i === h) return { x: 0, y: -10, r: 0, s: 1.1, z: 100, o: 1 };
+  const away = i < h ? -1 : 1;
+  const dist = Math.max(Math.abs(i - h), 1);
+  const base = fanPos(i, total);
   return {
-    x: offset * spread + away * (50 / dist),
-    rotate: offset * fanDeg * 0.5,
-    scale: 0.92,
-    zIndex: total - Math.abs(offset),
-    opacity: 0.55,
+    x: base.x + away * (55 / dist),
+    y: base.y - 5,
+    r: base.r * 0.4,
+    s: 0.88,
+    z: total - Math.abs(i - (total - 1) / 2),
+    o: 0.4,
   };
 }
 
 export function InstagramFeed() {
   const sectionRef = React.useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: true, margin: "-100px" });
+  const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [hovered, setHovered] = React.useState<number | null>(null);
+  const n = IG_CARDS.length;
 
   return (
-    <section ref={sectionRef} className="overflow-hidden bg-white py-20 sm:py-28 lg:py-36">
+    <section ref={sectionRef} className="overflow-hidden bg-zinc-50/60 py-20 sm:py-28 lg:py-36">
       <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
-        {/* header */}
         <div
-          className="mb-16 text-center sm:mb-20"
+          className="mb-14 text-center sm:mb-20"
           style={{
             opacity: isInView ? 1 : 0,
             transform: isInView ? "translateY(0)" : "translateY(20px)",
@@ -620,33 +611,34 @@ export function InstagramFeed() {
           </h2>
         </div>
 
-        {/* fan cards */}
-        <div className="relative mx-auto h-[380px] max-w-[900px] sm:h-[420px] lg:h-[460px]">
+        <div className="relative mx-auto" style={{ height: "420px", maxWidth: "860px" }}>
           {IG_CARDS.map((card, i) => {
-            const t = getFanTransform(i, IG_CARDS.length, hovered);
+            const fp = fanPos(i, n);
+            const hp = hovered !== null ? hoverPos(i, hovered, n) : null;
+
             return (
               <motion.div
                 key={card.id}
-                className="absolute left-1/2 top-1/2 cursor-pointer"
-                style={{ width: "min(220px, 38vw)" }}
-                initial={{ x: "-50%", y: "-50%", rotate: 0, scale: 0.85, opacity: 0 }}
+                className="absolute cursor-pointer"
+                style={{ width: CARD_W, left: "50%", bottom: "40px", marginLeft: -CARD_W / 2 }}
+                initial={{ x: 0, y: 0, rotate: 0, scale: 0.9, opacity: 0 }}
                 animate={
                   isInView
                     ? {
-                        x: `calc(-50% + ${t.x}px)`,
-                        y: "-50%",
-                        rotate: t.rotate,
-                        scale: t.scale,
-                        zIndex: t.zIndex,
-                        opacity: t.opacity,
+                        x: hp ? hp.x : fp.x,
+                        y: hp ? hp.y : fp.y,
+                        rotate: hp ? hp.r : fp.r,
+                        scale: hp ? hp.s : 1,
+                        zIndex: hp ? hp.z : n - Math.abs(i - (n - 1) / 2),
+                        opacity: hp ? hp.o : 1,
                       }
                     : undefined
                 }
                 transition={{
                   type: "spring",
-                  stiffness: 80,
-                  damping: 18,
-                  delay: i * 0.08,
+                  stiffness: 90,
+                  damping: 16,
+                  delay: isInView ? i * 0.06 : 0,
                 }}
                 onHoverStart={() => setHovered(i)}
                 onHoverEnd={() => setHovered(null)}
@@ -654,37 +646,38 @@ export function InstagramFeed() {
                 <div
                   className="overflow-hidden rounded-2xl sm:rounded-3xl"
                   style={{
+                    transformOrigin: "bottom center",
                     boxShadow:
                       hovered === i
-                        ? "0 25px 60px -12px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.1) inset"
-                        : "0 8px 30px -8px rgba(0,0,0,0.18)",
+                        ? "0 30px 60px -15px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08) inset"
+                        : "0 10px 30px -10px rgba(0,0,0,0.2)",
                     transition: "box-shadow 0.5s cubic-bezier(0.22,1,0.36,1)",
                   }}
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden">
+                  <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
                     <img
                       src={card.img}
                       alt={card.label}
                       className="h-full w-full object-cover transition-transform duration-700 ease-out"
-                      style={{
-                        transform: hovered === i ? "scale(1.06)" : "scale(1)",
-                      }}
+                      style={{ transform: hovered === i ? "scale(1.08)" : "scale(1)" }}
                     />
-                    {/* gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-500"
-                      style={{ opacity: hovered === i ? 1 : 0 }}
-                    />
-                    {/* label */}
                     <div
-                      className="absolute bottom-0 left-0 right-0 p-4 sm:p-5"
+                      className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"
                       style={{
                         opacity: hovered === i ? 1 : 0,
-                        transform: hovered === i ? "translateY(0)" : "translateY(8px)",
-                        transition: "opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s",
+                        transition: "opacity 0.4s ease",
+                      }}
+                    />
+                    <div
+                      className="absolute bottom-0 left-0 right-0 p-4"
+                      style={{
+                        opacity: hovered === i ? 1 : 0,
+                        transform: hovered === i ? "translateY(0)" : "translateY(6px)",
+                        transition: "opacity 0.35s ease 0.08s, transform 0.35s ease 0.08s",
                       }}
                     >
-                      <p className="text-[13px] font-medium text-white/80">{card.label}</p>
-                      <p className="mt-0.5 text-[11px] text-white/50">View on Instagram</p>
+                      <p className="text-[13px] font-medium text-white">{card.label}</p>
+                      <p className="mt-0.5 text-[11px] text-white/55">View on Instagram</p>
                     </div>
                   </div>
                 </div>
