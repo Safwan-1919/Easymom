@@ -610,12 +610,9 @@ export function InstagramFeed() {
 
   React.useEffect(() => {
     if (!isInView) return;
-    const timers: NodeJS.Timeout[] = [];
-    timers.push(setTimeout(() => setRevealedPairs(1), 300));
-    timers.push(setTimeout(() => setRevealedPairs(2), 1000));
-    timers.push(setTimeout(() => setRevealedPairs(3), 1700));
-    timers.push(setTimeout(() => setAnimDone(true), 2400));
-    return () => timers.forEach(clearTimeout);
+    const t = setTimeout(() => setRevealedPairs(3), 100);
+    const t2 = setTimeout(() => setAnimDone(true), 1200);
+    return () => { clearTimeout(t); clearTimeout(t2); };
   }, [isInView]);
 
   function getCardState(i: number) {
@@ -640,7 +637,7 @@ export function InstagramFeed() {
     <section ref={sectionRef} className="overflow-hidden bg-zinc-50/60 py-24 sm:py-32 lg:py-44">
       <div className="mx-auto max-w-[1200px] px-6 sm:px-10 lg:px-16">
         <div
-          className="mb-16 text-center sm:mb-24"
+          className="mb-16 sm:mb-24"
           style={{
             opacity: isInView ? 1 : 0,
             transform: isInView ? "translateY(0)" : "translateY(20px)",
@@ -651,7 +648,7 @@ export function InstagramFeed() {
             @easymomfoods
           </p>
           <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-zinc-900 sm:text-[38px] lg:text-[42px]">
-            Follow&nbsp;the&nbsp;flavour
+            Instagram Feeds
           </h2>
         </div>
 
@@ -662,7 +659,7 @@ export function InstagramFeed() {
           {IG_CARDS.map((card, i) => {
             const s = getCardState(i);
             const dist = Math.abs(i - CENTER);
-            const pairDelay = dist === 0 ? 0 : dist * 0.7;
+            const pairDelay = dist * 0.07;
 
             return (
               <motion.div
@@ -684,8 +681,8 @@ export function InstagramFeed() {
                   opacity: s.o,
                 }}
                 transition={{
-                  ease: [0.22, 1, 0.36, 1],
-                  duration: 0.65,
+                  ease: [0.25, 1, 0.5, 1],
+                  duration: 0.7,
                   delay: pairDelay,
                 }}
                 onHoverStart={() => animDone && setHovered(i)}
