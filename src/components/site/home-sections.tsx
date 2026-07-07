@@ -565,48 +565,37 @@ const FAN_SPREAD = 100;
 const ROTATIONS = [-5, -3, -1.5, 0, 1.5, 3, 5];
 const VERTICAL_DROP = [30, 18, 8, 0, 8, 18, 30];
 const Z_INDEX = [4, 5, 6, 7, 6, 5, 4];
+const CENTER = 3;
 
-function fanState(i: number, total: number, hovered: number | null) {
-  const baseX = (i - (total - 1) / 2) * FAN_SPREAD;
-  const baseR = ROTATIONS[i];
-  const baseY = VERTICAL_DROP[i];
+function getFanValues(i: number) {
+  return {
+    x: (i - CENTER) * FAN_SPREAD,
+    y: VERTICAL_DROP[i],
+    r: ROTATIONS[i],
+    z: Z_INDEX[i],
+  };
+}
 
-  if (hovered === null) {
-    return {
-      x: baseX,
-      y: baseY,
-      r: baseR,
-      s: i === (total - 1) / 2 ? 1.04 : 1,
-      z: Z_INDEX[i],
-      o: 1,
-      shadow:
-        i === (total - 1) / 2
-          ? "0 25px 60px -10px rgba(0,0,0,0.18), 0 40px 100px -20px rgba(0,0,0,0.22)"
-          : "0 15px 40px -8px rgba(0,0,0,0.12), 0 25px 70px -15px rgba(0,0,0,0.15)",
-    };
-  }
+function getDefaultShadow(i: number) {
+  return i === CENTER
+    ? "0 25px 60px -10px rgba(0,0,0,0.18), 0 40px 100px -20px rgba(0,0,0,0.22)"
+    : "0 15px 40px -8px rgba(0,0,0,0.12), 0 25px 70px -15px rgba(0,0,0,0.15)";
+}
 
+function getHoverValues(i: number, hovered: number) {
   if (i === hovered) {
-    return {
-      x: 0,
-      y: 0,
-      r: 0,
-      s: 1.05,
-      z: 100,
-      o: 1,
-      shadow: "0 30px 70px -10px rgba(0,0,0,0.22), 0 50px 110px -25px rgba(0,0,0,0.28)",
-    };
+    return { x: 0, y: 0, r: 0, s: 1.05, z: 100, o: 1, shadow: "0 30px 70px -10px rgba(0,0,0,0.22), 0 50px 110px -25px rgba(0,0,0,0.28)" };
   }
-
+  const fan = getFanValues(i);
   const away = i < hovered ? -1 : 1;
   const dist = Math.max(Math.abs(i - hovered), 1);
   const shift = dist === 1 ? 26 : dist === 2 ? 16 : 8;
   return {
-    x: baseX + away * shift,
-    y: baseY + 4,
-    r: baseR,
+    x: fan.x + away * shift,
+    y: fan.y + 4,
+    r: fan.r,
     s: 0.97,
-    z: Z_INDEX[i],
+    z: fan.z,
     o: 0.45,
     shadow: "0 8px 24px -6px rgba(0,0,0,0.1), 0 14px 40px -10px rgba(0,0,0,0.12)",
   };
@@ -616,7 +605,36 @@ export function InstagramFeed() {
   const sectionRef = React.useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-80px" });
   const [hovered, setHovered] = React.useState<number | null>(null);
-  const n = IG_CARDS.length;
+  const [revealedPairs, setRevealedPairs] = React.useState(0);
+  const [animDone, setAnimDone] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!isInView) return;
+    const timers: NodeJS.Timeout[] = [];
+    timers.push(setTimeout(() => setRevealedPairs(1), 300));
+    timers.push(setTimeout(() => setRevealedPairs(2), 1000));
+    timers.push(setTimeout(() => setRevealedPairs(3), 1700));
+    timers.push(setTimeout(() => setAnimDone(true), 2400));
+    return () => timers.forEach(clearTimeout);
+  }, [isInView]);
+
+  function getCardState(i: number) {
+    const fan = getFanValues(i);
+    const dist = Math.abs(i - CENTER);
+
+    if (i === CENTER) {
+      if (!isInView) return { x: 0, y: 0, r: 0, s: 1, z: 7, o: 1, shadow: getDefaultShadow(i) };
+      if (hovered !== null && animDone) return getHoverValues(i, hovered);
+      return { x: fan.x, y: fan.y, r: fan.r, s: 1.04, z: fan.z, o: 1, shadow: getDefaultShadow(i) };
+    }
+
+    if (!isInView || dist > revealedPairs) {
+      return { x: 0, y: 0, r: 0, s: 0.96, z: 0, o: 0, shadow: "none" };
+    }
+
+    if (hovered !== null && animDone) return getHoverValues(i, hovered);
+    return { x: fan.x, y: fan.y, r: fan.r, s: 1, z: fan.z, o: 1, shadow: getDefaultShadow(i) };
+  }
 
   return (
     <section ref={sectionRef} className="overflow-hidden bg-zinc-50/60 py-24 sm:py-32 lg:py-44">
@@ -642,42 +660,41 @@ export function InstagramFeed() {
           style={{ height: "420px", maxWidth: "780px" }}
         >
           {IG_CARDS.map((card, i) => {
-            const p = fanState(i, n, hovered);
+            const s = getCardState(i);
+            const dist = Math.abs(i - CENTER);
+            const pairDelay = dist === 0 ? 0 : dist * 0.7;
+
             return (
               <motion.div
                 key={card.id}
-                className="absolute cursor-pointer"
+                className="absolute"
                 style={{
                   width: CARD_W,
                   bottom: 0,
                   left: "50%",
                   marginLeft: -CARD_W / 2,
+                  cursor: animDone ? "pointer" : "default",
                 }}
-                initial={{ x: 0, y: 40, rotate: 0, scale: 0.95, opacity: 0 }}
-                animate={
-                  isInView
-                    ? {
-                        x: p.x,
-                        y: p.y,
-                        rotate: p.r,
-                        scale: p.s,
-                        zIndex: p.z,
-                        opacity: p.o,
-                      }
-                    : undefined
-                }
+                animate={{
+                  x: s.x,
+                  y: s.y,
+                  rotate: s.r,
+                  scale: s.s,
+                  zIndex: s.z,
+                  opacity: s.o,
+                }}
                 transition={{
                   ease: [0.22, 1, 0.36, 1],
-                  duration: 1.8,
-                  delay: isInView ? 0.3 + i * 0.09 : 0,
+                  duration: 0.65,
+                  delay: pairDelay,
                 }}
-                onHoverStart={() => setHovered(i)}
+                onHoverStart={() => animDone && setHovered(i)}
                 onHoverEnd={() => setHovered(null)}
               >
                 <div
                   className="overflow-hidden rounded-[30px]"
                   style={{
-                    boxShadow: p.shadow,
+                    boxShadow: s.shadow,
                     transition: "box-shadow 0.55s cubic-bezier(0.33,1,0.68,1)",
                   }}
                 >
@@ -687,22 +704,22 @@ export function InstagramFeed() {
                       alt={card.label}
                       className="h-full w-full object-cover"
                       style={{
-                        transform: hovered === i ? "scale(1.04)" : "scale(1)",
+                        transform: hovered === i && animDone ? "scale(1.04)" : "scale(1)",
                         transition: "transform 0.6s cubic-bezier(0.33,1,0.68,1)",
                       }}
                     />
                     <div
                       className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"
                       style={{
-                        opacity: hovered === i ? 1 : 0,
+                        opacity: hovered === i && animDone ? 1 : 0,
                         transition: "opacity 0.4s ease",
                       }}
                     />
                     <div
                       className="absolute bottom-0 left-0 right-0 p-5"
                       style={{
-                        opacity: hovered === i ? 1 : 0,
-                        transform: hovered === i ? "translateY(0)" : "translateY(4px)",
+                        opacity: hovered === i && animDone ? 1 : 0,
+                        transform: hovered === i && animDone ? "translateY(0)" : "translateY(4px)",
                         transition: "opacity 0.35s ease 0.06s, transform 0.35s ease 0.06s",
                       }}
                     >
