@@ -11,7 +11,7 @@ import {
   BrandStory,
   Recipes,
   Testimonials,
-  Newsletter,
+  TrustStrip,
 } from "@/components/site/home-sections";
 import { Footer } from "@/components/site/footer";
 import { CartDrawer, SearchOverlay, WishlistDrawer } from "@/components/site/overlays";
@@ -69,7 +69,7 @@ export default function Home() {
             <BrandStory />
             <Recipes />
             <Testimonials />
-            <Newsletter />
+            <TrustStrip />
           </Suspense>
         )}
         {view.name === "shop" && (

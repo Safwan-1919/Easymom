@@ -9,8 +9,6 @@ import {
   Phone,
   MapPin,
   ShieldCheck,
-  Truck,
-  RefreshCw,
   ChevronDown,
 } from "lucide-react";
 import { useUI } from "@/lib/ui-store";
@@ -69,27 +67,6 @@ export function Footer() {
   const go = useUI((s) => s.go);
   return (
     <footer className="mt-auto border-t border-border bg-white">
-      {/* trust strip */}
-      <div className="border-b border-border">
-        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-px sm:grid-cols-3">
-          {[
-            { icon: Truck, t: "Free shipping over ₹499", s: "Dispatched in 24 hours" },
-            { icon: ShieldCheck, t: "No preservatives, ever", s: "Read the label — it's a recipe" },
-            { icon: RefreshCw, t: "Easy returns", s: "Not right? We'll make it right" },
-          ].map((x) => (
-            <div key={x.t} className="flex items-center gap-3 px-6 py-5 sm:justify-center">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[6px] bg-card text-primary">
-                <x.icon className="h-5 w-5" strokeWidth={1.75} />
-              </div>
-              <div>
-                <div className="text-[13.5px] font-semibold text-foreground">{x.t}</div>
-                <div className="text-[12px] text-muted-foreground">{x.s}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* main */}
       <div className="mx-auto max-w-[1280px] px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-5">

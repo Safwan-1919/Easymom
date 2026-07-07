@@ -13,6 +13,8 @@ import {
   Flame,
   CookingPot,
   ChevronRight,
+  Truck,
+  RefreshCw,
 } from "lucide-react";
 import { categories, products, recipes, testimonials, brandValues } from "@/lib/data";
 import { useUI } from "@/lib/ui-store";
@@ -553,74 +555,64 @@ export function Testimonials() {
   );
 }
 
-export function Newsletter() {
+export function TrustStrip() {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const o = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.setAttribute("data-revealed", "");
+            o.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.15 }
+    );
+    ref.current.querySelectorAll("[data-reveal]").forEach((el) => o.observe(el));
+    return () => o.disconnect();
+  }, []);
+
+  const items = [
+    {
+      icon: Truck,
+      title: "Free shipping over ₹499",
+      sub: "Dispatched in 24 hours",
+    },
+    {
+      icon: ShieldCheck,
+      title: "No preservatives, ever",
+      sub: "Read the label — it's a recipe",
+    },
+    {
+      icon: RefreshCw,
+      title: "Easy returns",
+      sub: "Not right? We'll make it right",
+    },
+  ];
+
   return (
-    <section className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8">
-      <div className="relative overflow-hidden rounded-[6px] bg-foreground px-6 py-14 text-center sm:px-12 lg:py-20">
-        <div
-          className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full opacity-30 blur-3xl"
-          style={{ background: "oklch(0.6 0.17 27)" }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full opacity-25 blur-3xl"
-          style={{ background: "oklch(0.74 0.14 80)" }}
-        />
-        <div className="relative mx-auto max-w-xl">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-turmeric">
-            The EasyMom letter
-          </p>
-          <h2 className="mt-3 text-balance text-[30px] font-semibold leading-tight tracking-tight text-white sm:text-[38px]">
-            Recipes, restocks and 10% off your first order.
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-white/65">
-            One letter a fortnight. Real recipes, new-blend early access, and a
-            heads-up when the gunpowder is back in stock. No spam, ever.
-          </p>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const fd = new FormData(e.currentTarget);
-              const email = String(fd.get("email") || "");
-              const { toast } = await import("sonner");
-              if (!email) return;
-              try {
-                const res = await fetch("/api/newsletter", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ email }),
-                });
-                if (res.ok) {
-                  toast.success("You're on the list", {
-                    description: "Check your inbox for the 10% code.",
-                  });
-                  (e.currentTarget as HTMLFormElement).reset();
-                } else {
-                  throw new Error();
-                }
-              } catch {
-                toast.error("Something went wrong", { description: "Please try again." });
-              }
-            }}
-            className="mx-auto mt-8 flex max-w-md flex-col gap-2 sm:flex-row"
+    <section ref={ref} className="border-y border-zinc-200 bg-white">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-1 sm:grid-cols-3">
+        {items.map((item, i) => (
+          <div
+            key={item.title}
+            data-reveal
+            className={`flex items-center gap-4 px-8 py-7 sm:justify-center sm:px-6 ${
+              i < 2 ? "border-b sm:border-b-0 sm:border-r border-zinc-200" : ""
+            }`}
+            style={{ transition: `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`, opacity: 0, transform: "translateY(12px)" }}
           >
-            <input
-              name="email"
-              type="email"
-              required
-              placeholder="you@email.com"
-              className="h-12 flex-1 rounded-[4px] border border-white/15 bg-white/5 px-4 text-[14px] text-white placeholder:text-white/40 focus:border-turmeric focus:outline-none focus:ring-1 focus:ring-turmeric"
-            />
-            <button
-              type="submit"
-              className="h-12 rounded-[4px] bg-white px-6 text-[14px] font-semibold text-foreground transition hover:bg-white/90"
-            >
-              Subscribe
-            </button>
-          </form>
-          <p className="mt-3 text-[11px] text-white/40">
-            By subscribing you agree to our privacy policy. Unsubscribe anytime.
-          </p>
-        </div>
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/[0.06]">
+              <item.icon className="h-5 w-5 text-primary" strokeWidth={1.75} />
+            </div>
+            <div>
+              <div className="text-[14px] font-semibold text-zinc-900">{item.title}</div>
+              <div className="mt-0.5 text-[12.5px] text-zinc-400">{item.sub}</div>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
