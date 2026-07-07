@@ -50,12 +50,16 @@ export const useUI = create<UIState>((set, get) => ({
   checkoutOpen: false,
   orderConfirmed: false,
   activeLevels: [],
-  maxPrice: 400,
+  maxPrice: 200,
   sortBy: "featured",
   wishlistOpen: false,
-  go: (v) =>
-    set({ view: v, mobileNavOpen: false, searchOpen: false }) &&
-    (typeof window !== "undefined" && window.scrollTo({ top: 0, behavior: "smooth" }), true),
+  go: (v) => {
+    set({ view: v, mobileNavOpen: false, searchOpen: false });
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    });
+    return true;
+  },
   openCart: () => set({ cartOpen: true }),
   closeCart: () => set({ cartOpen: false }),
   openSearch: () => set({ searchOpen: true }),

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useUI } from "@/lib/ui-store";
 import { Nav } from "@/components/site/nav";
 import { Hero } from "@/components/site/hero";
 import {
-  BrandStrip,
+  OurProducts,
   Categories,
   FeaturedProducts,
   BrandStory,
@@ -24,6 +24,14 @@ import {
   AboutView,
   FaqView,
 } from "@/components/site/views";
+import {
+  HomepageSkeleton,
+  ShopSkeleton,
+  ProductSkeleton,
+  RecipesSkeleton,
+  AboutSkeleton,
+  FaqSkeleton,
+} from "@/components/site/page-skeletons";
 
 export default function Home() {
   const view = useUI((s) => s.view);
@@ -54,22 +62,41 @@ export default function Home() {
 
       <main className="flex-1">
         {view.name === "home" && (
-          <>
+          <Suspense fallback={<HomepageSkeleton />}>
             <Hero />
-            <BrandStrip />
-            <Categories />
+            <OurProducts />
             <FeaturedProducts />
             <BrandStory />
             <Recipes />
             <Testimonials />
             <Newsletter />
-          </>
+          </Suspense>
         )}
-        {view.name === "shop" && <ShopView />}
-        {view.name === "product" && <ProductView />}
-        {view.name === "recipes" && <RecipesView />}
-        {view.name === "about" && <AboutView />}
-        {view.name === "faq" && <FaqView />}
+        {view.name === "shop" && (
+          <Suspense fallback={<ShopSkeleton />}>
+            <ShopView />
+          </Suspense>
+        )}
+        {view.name === "product" && (
+          <Suspense fallback={<ProductSkeleton />}>
+            <ProductView />
+          </Suspense>
+        )}
+        {view.name === "recipes" && (
+          <Suspense fallback={<RecipesSkeleton />}>
+            <RecipesView />
+          </Suspense>
+        )}
+        {view.name === "about" && (
+          <Suspense fallback={<AboutSkeleton />}>
+            <AboutView />
+          </Suspense>
+        )}
+        {view.name === "faq" && (
+          <Suspense fallback={<FaqSkeleton />}>
+            <FaqView />
+          </Suspense>
+        )}
       </main>
 
       <Footer />

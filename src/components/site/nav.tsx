@@ -20,9 +20,6 @@ import { SpiceVisual } from "./spice-visual";
 
 const NAV_LINKS = [
   { label: "Shop", view: { name: "shop" as const } },
-  { label: "Chicken", view: { name: "shop" as const, categoryId: "chicken" } },
-  { label: "Vegetarian", view: { name: "shop" as const, categoryId: "veg" } },
-  { label: "Ready-to-Cook", view: { name: "shop" as const, categoryId: "ready" } },
   { label: "Recipes", view: { name: "recipes" as const } },
   { label: "Our Story", view: { name: "about" as const } },
 ];
@@ -32,18 +29,7 @@ export function Nav() {
     useUI();
   const lines = useCart((s) => s.lines);
   const wishlist = useCart((s) => s.wishlist);
-  const [scrolled, setScrolled] = useState(false);
   const [megaOpen, setMegaOpen] = useState<string | null>(null);
-
-  const isHome = view.name === "home";
-  const transparent = isHome && !scrolled;
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   useEffect(() => {
     setMobileNav(false);
@@ -53,22 +39,10 @@ export function Nav() {
     <>
       <motion.header
         initial={false}
-        animate={{
-          backgroundColor: transparent
-            ? "rgba(255,255,255,0)"
-            : "rgba(253,250,244,0.85)",
-          borderColor: transparent
-            ? "rgba(0,0,0,0)"
-            : "rgba(0,0,0,0.06)",
-        }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md",
-          transparent ? "backdrop-blur-0" : "supports-[backdrop-filter]:bg-[rgba(253,250,244,0.72)]"
-        )}
+        className="fixed inset-x-0 top-0 z-50 border-b border-black/6 bg-white/90 shadow-soft backdrop-blur-md"
       >
         <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          {/* left: mobile menu + logo */}
+          {/* left: mobile menu + logo + nav links */}
           <div className="flex items-center gap-3">
             <button
               onClick={toggleMobileNav}
@@ -79,81 +53,73 @@ export function Nav() {
             </button>
             <button
               onClick={() => go({ name: "home" })}
-              className="group flex items-center gap-2"
+              className="flex items-center gap-2"
               aria-label="EasyMom home"
             >
-              <LogoMark className="h-7 w-7" />
-              <span
-                className={cn(
-                  "text-[17px] font-semibold tracking-tight transition-colors",
-                  transparent ? "text-white" : "text-foreground"
-                )}
-              >
-                EasyMom
-              </span>
+              <img
+                src="/brand/easymom-logo.jpeg"
+                alt="EasyMom"
+                className="h-20 w-auto mix-blend-multiply"
+              />
             </button>
+            {/* desktop nav */}
+            <nav className="hidden lg:flex items-center gap-1 ml-4">
+              {NAV_LINKS.map((link) => {
+                const active =
+                  view.name === link.view.name &&
+                  (view.name === "shop"
+                    ? (view as { categoryId?: string }).categoryId ===
+                      (link.view as { categoryId?: string }).categoryId
+                    : true);
+                return (
+                  <button
+                    key={link.label}
+                    onClick={() => go(link.view)}
+                    onMouseEnter={() =>
+                      link.view.name === "shop" &&
+                      !(link.view as { categoryId?: string }).categoryId
+                        ? setMegaOpen("shop")
+                        : setMegaOpen(null)
+                    }
+                    className={cn(
+                      "relative rounded-[4px] px-3 py-2 text-[13.5px] font-medium transition-colors",
+                      "text-foreground/70 hover:text-foreground",
+                      active && "text-foreground"
+                    )}
+                  >
+                    {link.label}
+                    {active && (
+                      <motion.span
+                        layoutId="nav-underline"
+                        className="absolute inset-x-3 -bottom-px h-px bg-primary"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
 
-          {/* center: desktop nav */}
-          <nav className="hidden items-center gap-1 lg:flex">
-            {NAV_LINKS.map((link) => {
-              const active =
-                view.name === link.view.name &&
-                (view.name === "shop"
-                  ? (view as { categoryId?: string }).categoryId ===
-                    (link.view as { categoryId?: string }).categoryId
-                  : true);
-              return (
-                <button
-                  key={link.label}
-                  onClick={() => go(link.view)}
-                  onMouseEnter={() =>
-                    link.view.name === "shop" &&
-                    !(link.view as { categoryId?: string }).categoryId
-                      ? setMegaOpen("shop")
-                      : setMegaOpen(null)
-                  }
-                  className={cn(
-                    "relative rounded-[4px] px-3 py-2 text-[13.5px] font-medium transition-colors",
-                    transparent
-                      ? "text-white/85 hover:text-white"
-                      : "text-foreground/70 hover:text-foreground",
-                    active && (transparent ? "text-white" : "text-foreground")
-                  )}
-                >
-                  {link.label}
-                  {active && (
-                    <motion.span
-                      layoutId="nav-underline"
-                      className={cn(
-                        "absolute inset-x-3 -bottom-px h-px",
-                        transparent ? "bg-white" : "bg-primary"
-                      )}
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* right: actions */}
-          <div className="flex items-center gap-1">
+          {/* right: search bar + actions */}
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center">
+              <input
+                type="text"
+                placeholder="Search products..."
+                onFocus={openSearch}
+                className="h-9 w-64 rounded-[4px] border border-border bg-secondary/30 px-3 text-[13px] text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/60 focus:bg-white transition-colors"
+              />
+            </div>
             <button
               onClick={openSearch}
-              className={cn(
-                "grid h-9 w-9 place-items-center rounded-[4px] transition hover:bg-foreground/5",
-                transparent ? "text-white/90 hover:bg-white/10" : "text-foreground/80"
-              )}
+              className="grid h-9 w-9 place-items-center rounded-[4px] transition text-foreground/80 hover:bg-foreground/5 sm:hidden"
               aria-label="Search"
             >
               <Search className="h-[18px] w-[18px]" strokeWidth={1.75} />
             </button>
             <button
               onClick={() => useUI.getState().setWishlistOpen(true)}
-              className={cn(
-                "relative hidden h-9 w-9 place-items-center rounded-[4px] transition hover:bg-foreground/5 sm:grid",
-                transparent ? "text-white/90 hover:bg-white/10" : "text-foreground/80"
-              )}
+              className="relative hidden h-9 w-9 place-items-center rounded-[4px] transition text-foreground/80 hover:bg-foreground/5 sm:grid"
               aria-label="Wishlist"
             >
               <Heart className="h-[18px] w-[18px]" strokeWidth={1.75} />
@@ -165,10 +131,7 @@ export function Nav() {
             </button>
             <button
               onClick={openCart}
-              className={cn(
-                "relative grid h-9 w-9 place-items-center rounded-[4px] transition hover:bg-foreground/5",
-                transparent ? "text-white/90 hover:bg-white/10" : "text-foreground/80"
-              )}
+              className="relative grid h-9 w-9 place-items-center rounded-[4px] transition text-foreground/80 hover:bg-foreground/5"
               aria-label="Cart"
             >
               <ShoppingBag className="h-[18px] w-[18px]" strokeWidth={1.75} />
@@ -289,8 +252,11 @@ function MobileNav() {
       >
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <div className="flex items-center gap-2">
-            <LogoMark className="h-7 w-7" />
-            <span className="text-[17px] font-semibold tracking-tight">EasyMom</span>
+            <img
+              src="/brand/easymom-logo.jpeg"
+              alt="EasyMom"
+              className="h-9 w-auto mix-blend-multiply"
+            />
           </div>
           <button
             onClick={() => setMobileNav(false)}
@@ -338,29 +304,5 @@ function MobileNav() {
         </div>
       </motion.div>
     </motion.div>
-  );
-}
-
-export function LogoMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="em-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="oklch(0.46 0.17 27)" />
-          <stop offset="1" stopColor="oklch(0.74 0.14 80)" />
-        </linearGradient>
-      </defs>
-      <rect x="1" y="1" width="38" height="38" rx="9" fill="url(#em-g)" />
-      <path
-        d="M12 27c0-5 3.5-8 8-8s8 3 8 8"
-        fill="none"
-        stroke="white"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      <circle cx="20" cy="16" r="3.2" fill="white" />
-      <circle cx="14" cy="14" r="1.1" fill="white" opacity="0.85" />
-      <circle cx="26.5" cy="14.5" r="1.1" fill="white" opacity="0.85" />
-    </svg>
   );
 }

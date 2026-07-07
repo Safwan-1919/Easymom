@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, Plus, Star, Eye } from "lucide-react";
+import { Heart, Plus, Star } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import type { Product } from "@/lib/data";
 import { useCart } from "@/lib/store";
 import { useUI } from "@/lib/ui-store";
@@ -27,6 +28,30 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const wished = wishlist.includes(product.id);
   const discount = Math.round(((product.mrp - product.price) / product.mrp) * 100);
 
+  const images = product.images && product.images.length > 1 ? product.images : null;
+  const [hoverIdx, setHoverIdx] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const handleEnter = () => {
+    if (!images) return;
+    setHoverIdx(0);
+    intervalRef.current = setInterval(() => {
+      setHoverIdx((prev) => (prev + 1) % images.length);
+    }, 1200);
+  };
+
+  const handleLeave = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    setHoverIdx(0);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -38,16 +63,40 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       {/* visual */}
       <button
         onClick={() => go({ name: "product", slug: product.slug })}
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
         className="relative block aspect-[4/5] w-full overflow-hidden"
         aria-label={`View ${product.name}`}
       >
-        <SpiceVisual
-          hue={product.hue}
-          name={product.name}
-          weight={product.weight}
-          seed={product.id}
-          className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-        />
+        {images ? (
+          <div className="relative h-full w-full overflow-hidden">
+            {images.map((img, i) => (
+              <img
+                key={i}
+                src={img}
+                alt={`${product.name} ${i + 1}`}
+                className={cn(
+                  "absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-105",
+                  i === hoverIdx ? "opacity-100" : "opacity-0"
+                )}
+              />
+            ))}
+          </div>
+        ) : product.img ? (
+          <img
+            src={product.img}
+            alt={product.name}
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+        ) : (
+          <SpiceVisual
+            hue={product.hue}
+            name={product.name}
+            weight={product.weight}
+            seed={product.id}
+            className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+        )}
         {/* badges */}
         <div className="absolute left-3 top-3 flex flex-col gap-1.5">
           {product.bestSeller && (
@@ -66,12 +115,27 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             </span>
           )}
         </div>
-        {/* quick view */}
-        <div className="absolute inset-x-3 bottom-3 translate-y-2 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-          <span className="flex items-center justify-center gap-1.5 rounded-[4px] bg-card/95 px-3 py-2 text-[12px] font-medium text-foreground shadow-soft backdrop-blur-sm">
-            <Eye className="h-3.5 w-3.5" /> Quick view
-          </span>
-        </div>
+        {/* price tag */}
+        {discount > 0 && (
+          <div className="absolute bottom-0 right-0 rounded-tl-[6px] bg-foreground/90 px-2.5 py-1.5 backdrop-blur-sm">
+            <span className="text-[14px] font-semibold text-white">{inr(product.price)}</span>
+            <span className="ml-1 text-[11px] text-white/60 line-through">{inr(product.mrp)}</span>
+          </div>
+        )}
+        {/* image dots indicator */}
+        {images && (
+          <div className="absolute inset-x-0 bottom-2 flex justify-center gap-1">
+            {images.map((_, i) => (
+              <span
+                key={i}
+                className={cn(
+                  "h-1 rounded-full transition-all duration-300",
+                  i === hoverIdx ? "w-4 bg-white" : "w-1 bg-white/50"
+                )}
+              />
+            ))}
+          </div>
+        )}
       </button>
 
       {/* wishlist */}
@@ -107,6 +171,20 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
         >
           {product.name}
         </button>
+
+        <div className="mt-1 flex items-center gap-1.5">
+          {product.bestSeller && (
+            <span className="inline-flex items-center gap-1 rounded-[3px] border border-primary/30 bg-primary/8 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+              Best
+            </span>
+          )}
+          {product.isNew && (
+            <span className="inline-flex items-center gap-1 rounded-[3px] border border-turmeric/30 bg-turmeric/10 px-1.5 py-0.5 text-[10px] font-semibold text-[oklch(0.45_0.12_70)]">
+              Trend
+            </span>
+          )}
+        </div>
+
         <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted-foreground">
           {product.shortDesc}
         </p>

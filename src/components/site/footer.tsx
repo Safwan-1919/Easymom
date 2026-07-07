@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { useUI } from "@/lib/ui-store";
 import { categories } from "@/lib/data";
-import { LogoMark } from "./nav";
 
 const FOOTER_LINKS = [
   {
@@ -69,7 +68,7 @@ const FAQS = [
 export function Footer() {
   const go = useUI((s) => s.go);
   return (
-    <footer className="mt-auto border-t border-border bg-secondary/40">
+    <footer className="mt-auto border-t border-border bg-white">
       {/* trust strip */}
       <div className="border-b border-border">
         <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-px sm:grid-cols-3">
@@ -96,8 +95,11 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-5">
           <div className="col-span-2 lg:col-span-2">
             <button onClick={() => go({ name: "home" })} className="flex items-center gap-2">
-              <LogoMark className="h-8 w-8" />
-              <span className="text-[18px] font-semibold tracking-tight">EasyMom</span>
+              <img
+                src="/brand/easymom-logo.jpeg"
+                alt="EasyMom"
+                className="h-10 w-auto mix-blend-multiply"
+              />
             </button>
             <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-muted-foreground">
               Authentic South Indian masalas, ground fresh in small batches.
@@ -179,7 +181,7 @@ export function Footer() {
       {/* bottom */}
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-[1280px] flex-col items-center justify-between gap-3 px-4 py-5 text-[12px] text-muted-foreground sm:flex-row sm:px-6 lg:px-8">
-          <p>© {new Date().getFullYear()} EasyMom Foods Pvt. Ltd. · Made in Mangalore.</p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} EasyMom Foods Pvt. Ltd. · Made in Mangalore.</p>
           <div className="flex items-center gap-4">
             <span>FSSAI Lic. 10024051000678</span>
             <span className="hidden h-3 w-px bg-border sm:block" />

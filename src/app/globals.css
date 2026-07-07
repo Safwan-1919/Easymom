@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-inter);
+  --font-sans: var(--font-space);
+  --font-display: var(--font-space);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -38,7 +38,6 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /* EasyMom brand tokens */
   --color-chilli: var(--chilli);
   --color-chilli-foreground: var(--chilli-foreground);
   --color-turmeric: var(--turmeric);
@@ -53,48 +52,46 @@
 }
 
 :root {
-  /* EasyMom — strict 6px card / 4px button radius system */
-  --radius: 0.375rem; /* 6px base → cards 6px, buttons/inputs 4px */
-  --background: oklch(0.985 0.008 85);       /* warm white */
-  --foreground: oklch(0.20 0.012 50);        /* near black, warm */
-  --card: oklch(1 0 0);                       /* pure white */
+  --radius: 0.375rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.20 0.012 50);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.20 0.012 50);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.20 0.012 50);
-  --primary: oklch(0.46 0.17 27);            /* deep chilli red */
+  --primary: oklch(0.41 0.15 28);
   --primary-foreground: oklch(0.98 0.01 85);
-  --secondary: oklch(0.96 0.012 80);         /* warm light */
+  --secondary: oklch(1 0 0);
   --secondary-foreground: oklch(0.28 0.02 40);
-  --muted: oklch(0.965 0.008 80);
-  --muted-foreground: oklch(0.52 0.012 55);  /* muted gray */
-  --accent: oklch(0.95 0.02 80);             /* turmeric-tinted */
+  --muted: oklch(1 0 0);
+  --muted-foreground: oklch(0.52 0.012 55);
+  --accent: oklch(1 0 0);
   --accent-foreground: oklch(0.30 0.05 60);
-  --destructive: oklch(0.52 0.17 25);        /* muted red */
-  --border: oklch(0.92 0.008 80);            /* very light warm gray */
+  --destructive: oklch(0.52 0.17 25);
+  --border: oklch(0.92 0.008 80);
   --input: oklch(0.92 0.008 80);
-  --ring: oklch(0.46 0.17 27);
-  --chart-1: oklch(0.46 0.17 27);            /* chilli */
-  --chart-2: oklch(0.74 0.14 80);            /* turmeric */
-  --chart-3: oklch(0.55 0.12 145);           /* leaf green */
-  --chart-4: oklch(0.60 0.10 50);            /* warm brown */
-  --chart-5: oklch(0.40 0.05 50);            /* charcoal warm */
-  --sidebar: oklch(0.98 0.008 85);
+  --ring: oklch(0.41 0.15 28);
+  --chart-1: oklch(0.41 0.15 28);
+  --chart-2: oklch(0.74 0.14 80);
+  --chart-3: oklch(0.55 0.12 145);
+  --chart-4: oklch(0.60 0.10 50);
+  --chart-5: oklch(0.40 0.05 50);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.20 0.012 50);
-  --sidebar-primary: oklch(0.46 0.17 27);
+  --sidebar-primary: oklch(0.41 0.15 28);
   --sidebar-primary-foreground: oklch(0.98 0.01 85);
-  --sidebar-accent: oklch(0.95 0.02 80);
+  --sidebar-accent: oklch(1 0 0);
   --sidebar-accent-foreground: oklch(0.30 0.05 60);
   --sidebar-border: oklch(0.92 0.008 80);
-  --sidebar-ring: oklch(0.46 0.17 27);
+  --sidebar-ring: oklch(0.41 0.15 28);
 
-  /* Brand tokens */
-  --chilli: oklch(0.46 0.17 27);
+  --chilli: oklch(0.41 0.15 28);
   --chilli-foreground: oklch(0.98 0.01 85);
   --turmeric: oklch(0.74 0.14 80);
   --turmeric-foreground: oklch(0.24 0.04 55);
   --leaf: oklch(0.55 0.12 145);
-  --cream: oklch(0.985 0.008 85);
-  --sand: oklch(0.95 0.015 75);
+  --cream: oklch(1 0 0);
+  --sand: oklch(1 0 0);
 }
 
 .dark {
@@ -139,13 +136,12 @@
     font-feature-settings: "ss01", "cv11";
   }
   ::selection {
-    background: oklch(0.46 0.17 27 / 0.18);
+    background: oklch(0.41 0.15 28 / 0.18);
     color: oklch(0.30 0.05 40);
   }
 }
 
 @layer utilities {
-  /* Refined custom scrollbar for long lists */
   .scroll-elegant::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -168,7 +164,6 @@
     text-wrap: pretty;
   }
 
-  /* Subtle grain overlay for premium depth */
   .grain {
     position: relative;
   }
@@ -182,7 +177,6 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* Marquee for brand strip */
   @keyframes marquee {
     from { transform: translateX(0); }
     to { transform: translateX(-50%); }
@@ -191,7 +185,6 @@
     animation: marquee 32s linear infinite;
   }
 
-  /* Slow zoom for hero image */
   @keyframes slow-zoom {
     from { transform: scale(1); }
     to { transform: scale(1.08); }
@@ -202,13 +195,23 @@
 
   .shadow-premium {
     box-shadow:
-      0 1px 2px oklch(0.30 0.02 50 / 0.04),
-      0 8px 24px -8px oklch(0.30 0.02 50 / 0.08),
-      0 24px 48px -24px oklch(0.46 0.17 27 / 0.10);
+      0 1px 2px oklch(0.41 0.15 28 / 0.04),
+      0 8px 24px -8px oklch(0.41 0.15 28 / 0.08),
+      0 24px 48px -24px oklch(0.41 0.15 28 / 0.10);
   }
   .shadow-soft {
     box-shadow:
       0 1px 2px oklch(0.30 0.02 50 / 0.03),
       0 6px 16px -6px oklch(0.30 0.02 50 / 0.06);
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .animate-shimmer {
+    background: linear-gradient(90deg, oklch(0.96 0.008 80) 25%, oklch(0.92 0.008 80) 50%, oklch(0.96 0.008 80) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
   }
 }

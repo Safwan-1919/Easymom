@@ -58,9 +58,9 @@ export function Categories() {
   return (
     <section className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
       <SectionHeader
+        align="left"
         eyebrow="The collection"
         title="Six kitchens, one pantry"
-        description="Every blend belongs to a regional tradition. Browse by what you're cooking tonight."
       />
       <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categories.map((c, i) => (
@@ -407,6 +407,65 @@ export function Newsletter() {
           <p className="mt-3 text-[11px] text-white/40">
             By subscribing you agree to our privacy policy. Unsubscribe anytime.
           </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const OUR_PRODUCTS = [
+  { slug: "red-curry", name: "Red Curry", img: "/brand/category/product-1.png" },
+  { slug: "fish-curry-masala", name: "Fish Curry", img: "/brand/category/product-2.png" },
+  { slug: "green-curry", name: "Green Curry", img: "/brand/category/product-3.png" },
+  { slug: "palli-curry", name: "Palli Curry", img: "/brand/category/product-4.png" },
+];
+
+export function OurProducts() {
+  const go = useUI((s) => s.go);
+  return (
+    <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="mx-auto max-w-[1280px]">
+        <SectionHeader
+          align="left"
+          eyebrow="Shop by category"
+          title="Our Products"
+        />
+        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          {OUR_PRODUCTS.map((p, i) => {
+            const shadows = [
+              "8px 8px 50px 20px rgba(137,24,22,0.35)",
+              "-6px 10px 25px 6px rgba(137,24,22,0.15)",
+              "0 8px 40px 14px rgba(137,24,22,0.25)",
+              "-10px -4px 60px 25px rgba(137,24,22,0.40)",
+            ];
+            return (
+              <motion.button
+                key={p.slug}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                onClick={() => go({ name: "product", slug: p.slug })}
+                className="group relative flex flex-col overflow-hidden rounded-[6px] bg-card text-left"
+                style={{ boxShadow: shadows[i] }}
+              >
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[5px]">
+                  <img
+                    src={p.img}
+                    alt={p.name}
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-[17px] font-semibold text-white">{p.name}</h3>
+                    <p className="mt-0.5 text-[12px] text-white/70">
+                      Shop now <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">→</span>
+                    </p>
+                  </div>
+                </div>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -296,13 +296,13 @@ export function SearchOverlay() {
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[80]"
         >
-          <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" onClick={closeSearch} />
+          <div className="absolute inset-0 z-0 bg-foreground/40 backdrop-blur-sm" onClick={closeSearch} />
           <motion.div
             initial={{ y: -24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -24, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto mt-[8vh] w-[92%] max-w-2xl overflow-hidden rounded-[6px] border border-border bg-card shadow-premium"
+            className="relative z-10 mx-auto mt-[8vh] w-[92%] max-w-2xl overflow-hidden rounded-[6px] border border-border bg-card shadow-premium"
           >
             <div className="flex items-center gap-3 border-b border-border px-5 py-4">
               <SearchIcon className="h-5 w-5 text-muted-foreground" strokeWidth={1.75} />

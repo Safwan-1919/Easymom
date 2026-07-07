@@ -40,7 +40,7 @@ import { inr } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const LEVELS: SpiceLevel[] = ["Mild", "Medium", "Hot", "Fiery"];
+const LEVELS: SpiceLevel[] = ["Medium", "Hot"];
 
 export function ShopView() {
   const { view, go, activeLevels, toggleLevel, clearLevels, maxPrice, setMaxPrice, sortBy, setSortBy } = useUI();
@@ -128,8 +128,8 @@ export function ShopView() {
         </div>
         <input
           type="range"
-          min={150}
-          max={400}
+          min={100}
+          max={200}
           step={10}
           value={maxPrice}
           onChange={(e) => setMaxPrice(Number(e.target.value))}
@@ -201,7 +201,7 @@ export function ShopView() {
               <button
                 onClick={() => {
                   clearLevels();
-                  setMaxPrice(400);
+                  setMaxPrice(200);
                   go({ name: "shop" });
                 }}
                 className="mt-3 text-[13px] font-semibold text-primary underline-offset-2 hover:underline"
@@ -261,6 +261,7 @@ export function ProductView() {
   const { view, go, openCart, setQuickView } = useUI();
   const { add, wishlist, toggleWishlist } = useCart();
   const [qty, setQty] = useState(1);
+  const [selectedImg, setSelectedImg] = useState(0);
   const slug = view.name === "product" ? view.slug : "";
   const p = getProductBySlug(slug);
 
@@ -295,19 +296,43 @@ export function ProductView() {
         {/* visual */}
         <div>
           <div className="relative overflow-hidden rounded-[6px] border border-border">
-            <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="aspect-square w-full" />
+            {p.img || p.images ? (
+              <img
+                src={p.images ? p.images[selectedImg] : p.img}
+                alt={p.name}
+                className="aspect-square w-full object-cover"
+              />
+            ) : (
+              <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="aspect-square w-full" />
+            )}
           </div>
-          <div className="mt-3 grid grid-cols-4 gap-3">
-            {["Whole spices", "Stone-ground", "Small batch", "Sealed fresh"].map((t, i) => (
-              <div key={t} className="rounded-[6px] border border-border bg-card p-3 text-center">
-                <div
-                  className="mx-auto mb-2 h-8 w-8 rounded-full"
-                  style={{ background: `radial-gradient(circle at 35% 30%, oklch(0.65 0.15 ${p.hue + i * 10}), oklch(0.45 0.17 ${p.hue + i * 10}))` }}
-                />
-                <p className="text-[11px] font-medium text-muted-foreground">{t}</p>
-              </div>
-            ))}
-          </div>
+          {p.images && p.images.length > 1 ? (
+            <div className="mt-3 flex gap-2">
+              {p.images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedImg(i)}
+                  className={`h-16 w-16 overflow-hidden rounded-[4px] border-2 transition ${
+                    selectedImg === i ? "border-primary" : "border-border"
+                  }`}
+                >
+                  <img src={img} alt={`${p.name} ${i + 1}`} className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 grid grid-cols-4 gap-3">
+              {["Whole spices", "Stone-ground", "Small batch", "Sealed fresh"].map((t, i) => (
+                <div key={t} className="rounded-[6px] border border-border bg-card p-3 text-center">
+                  <div
+                    className="mx-auto mb-2 h-8 w-8 rounded-full"
+                    style={{ background: `radial-gradient(circle at 35% 30%, oklch(0.65 0.15 ${p.hue + i * 10}), oklch(0.45 0.17 ${p.hue + i * 10}))` }}
+                  />
+                  <p className="text-[11px] font-medium text-muted-foreground">{t}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* details */}
