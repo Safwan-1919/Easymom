@@ -122,5 +122,11 @@ if (typeof window !== "undefined") {
   window.addEventListener("popstate", (e) => {
     const view = e.state && e.state.name ? (e.state as View) : pathToView(window.location.pathname);
     useUI.setState({ view, mobileNavOpen: false, searchOpen: false });
+    window.scrollTo({ top: 0, behavior: "instant" });
   });
+
+  if ("scrollRestoration" in history) {
+    history.scrollRestoration = "manual";
+  }
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
