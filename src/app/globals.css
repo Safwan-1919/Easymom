@@ -214,4 +214,9 @@
     background-size: 200% 100%;
     animation: shimmer 1.8s ease-in-out infinite;
   }
+
+  [data-reveal][data-revealed] {
+    opacity: 1 !important;
+    transform: translateY(0) rotate(0deg) !important;
+  }
 }

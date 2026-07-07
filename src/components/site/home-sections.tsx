@@ -1,10 +1,10 @@
 "use client";
 
+import React from "react";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
   ArrowUpRight,
-  Star,
   Clock,
   Users,
   MapPin,
@@ -137,203 +137,416 @@ export function FeaturedProducts() {
 }
 
 export function BrandStory() {
-  const go = useUI((s) => s.go);
+  const [count, setCount] = React.useState(0);
+  const [countDone, setCountDone] = React.useState(false);
+  const statRef = React.useRef<HTMLDivElement>(null);
+  const revealRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!revealRef.current) return;
+    const els = revealRef.current.querySelectorAll("[data-reveal]");
+    const o = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.setAttribute("data-revealed", "");
+            o.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.12 }
+    );
+    els.forEach((el) => o.observe(el));
+    return () => o.disconnect();
+  }, []);
+
+  React.useEffect(() => {
+    if (!statRef.current) return;
+    const o = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        o.disconnect();
+        let cur = 0;
+        const id = setInterval(() => {
+          cur++;
+          setCount(cur);
+          if (cur >= 20) {
+            clearInterval(id);
+            setCountDone(true);
+          }
+        }, 80);
+      },
+      { threshold: 0.5 }
+    );
+    o.observe(statRef.current);
+    return () => o.disconnect();
+  }, []);
+
   return (
-    <>
-      {/* editorial split — storytelling image */}
-      <section className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="relative order-2 lg:order-1"
+    <section ref={revealRef} className="relative overflow-hidden bg-white">
+      {/* ── Marquee ── */}
+      <div className="relative border-b border-zinc-100 py-5 sm:py-7">
+        <div className="flex overflow-hidden">
+          <div className="flex shrink-0 animate-marquee items-center gap-6 pr-6 sm:gap-10 sm:pr-10">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <span
+                key={i}
+                className="whitespace-nowrap text-[42px] font-bold leading-none tracking-[-0.03em] text-zinc-[0.06] select-none sm:text-[64px] lg:text-[80px]"
+              >
+                GROUND IN BATCHES UNDER 20KG&nbsp;&nbsp;·&nbsp;&nbsp;
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Hero ── */}
+      <div className="mx-auto max-w-[1200px] px-6 py-16 sm:px-10 sm:py-20 lg:px-16 lg:py-24">
+        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-16">
+          {/* image */}
+          <div
+            data-reveal
+            className="relative overflow-hidden rounded-sm lg:col-span-7"
+            style={{ transition: "opacity 0.7s ease, transform 0.7s ease", opacity: 0, transform: "translateY(24px)" }}
           >
-            <div className="relative overflow-hidden rounded-[6px] shadow-premium">
+            <div className="grain">
               <img
                 src="/brand/story-grind.png"
                 alt="Hands grinding spices in a traditional stone mortar and pestle"
                 className="aspect-[4/3] w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent" />
             </div>
-            <div className="absolute -bottom-6 -right-2 hidden rounded-[6px] border border-border bg-card p-5 shadow-premium sm:block lg:-right-8">
-              <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-[6px] bg-primary/10">
-                  <CookingPot className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <div className="text-[20px] font-semibold leading-none text-foreground">20kg</div>
-                  <div className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">Max batch size</div>
+          </div>
+
+          {/* text */}
+          <div className="flex flex-col gap-8 lg:col-span-5 lg:pt-4">
+            {/* stat */}
+            <div
+              ref={statRef}
+              data-reveal
+              className="flex items-center gap-4"
+              style={{ transition: "opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s", opacity: 0, transform: "translateY(20px)" }}
+            >
+              <div className="relative">
+                <div className="absolute -inset-3 rounded-full border-[1.5px] border-primary/20" />
+                <div className="grid h-20 w-20 place-items-center rounded-full bg-primary/[0.07]">
+                  <span className="text-[28px] font-bold tracking-tight text-primary tabular-nums">
+                    {countDone ? "20+" : `${count}+`}
+                  </span>
                 </div>
               </div>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                Max batch<br />size
+              </span>
             </div>
-          </motion.div>
 
-          <div className="order-1 lg:order-2">
-            <SectionHeader
-              align="left"
-              eyebrow="Why EasyMom"
-              title="Ground the way it keeps its soul"
-              description="Industrial masala is pulverised at speed — volatile oils vanish, flavour flattens. We grind in batches under 20kg on slow stones, the way a home kitchen would, just scaled enough to reach yours."
-            />
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
-              {brandValues.map((v) => {
-                const Icon = ICONS[v.icon] ?? Leaf;
-                return (
-                  <div key={v.title} className="flex gap-3">
-                    <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[6px] bg-primary/8 text-primary">
-                      <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                    </div>
-                    <div>
-                      <h4 className="text-[14.5px] font-semibold text-foreground">{v.title}</h4>
-                      <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">{v.body}</p>
-                    </div>
+            <div
+              data-reveal
+              style={{ transition: "opacity 0.7s ease 0.15s, transform 0.7s ease 0.15s", opacity: 0, transform: "translateY(20px)" }}
+            >
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
+                Why EasyMom
+              </p>
+              <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-zinc-900 sm:text-[38px] lg:text-[42px]">
+                Ground the way it keeps its soul
+              </h2>
+            </div>
+
+            <p
+              data-reveal
+              className="hidden text-[15px] leading-[1.7] text-zinc-500 sm:block"
+              style={{ transition: "opacity 0.7s ease 0.2s, transform 0.7s ease 0.2s", opacity: 0, transform: "translateY(20px)" }}
+            >
+              Industrial masala is pulverised at speed — volatile oils vanish, flavour flattens. We grind in batches under 20kg on slow stones, the way a home kitchen would, just scaled enough to reach yours.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Features ── */}
+      <div className="mx-auto max-w-[1200px] px-6 pb-20 sm:px-10 sm:pb-24 lg:px-16 lg:pb-28">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {brandValues.map((v, i) => {
+            const Icon = ICONS[v.icon] ?? Leaf;
+            const span = i < 2 ? "sm:col-span-2 lg:col-span-2" : "sm:col-span-1 lg:col-span-1";
+            const tall = i === 1;
+            const rotations = ["-0.4deg", "0.3deg", "-0.2deg"];
+            return (
+              <div
+                key={v.title}
+                data-reveal
+                className={`group relative flex flex-col justify-between rounded-sm border border-zinc-200 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-200/60 ${span} ${tall ? "sm:row-span-2" : ""}`}
+                style={{
+                  transition: `opacity 0.6s ease ${0.05 * i}s, transform 0.6s ease ${0.05 * i}s`,
+                  opacity: 0,
+                  transform: `translateY(20px) rotate(${rotations[i % 3]})`,
+                  ...(typeof window !== "undefined" && revealRef.current?.querySelector("[data-revealed]")
+                    ? {}
+                    : {}),
+                }}
+              >
+                <div>
+                  <div className="mb-5 grid h-10 w-10 place-items-center rounded-sm bg-primary/[0.07]">
+                    <Icon className="h-[18px] w-[18px] text-primary" strokeWidth={1.75} />
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ingredients banner */}
-      <section className="relative overflow-hidden bg-foreground">
-        <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
-          <div className="overflow-hidden rounded-[6px]">
-            <img
-              src="/brand/story-ingredients.png"
-              alt="Overhead flatlay of premium South Indian spice ingredients"
-              className="aspect-square w-full object-cover"
-            />
-          </div>
-          <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-turmeric">
-              Nothing to hide
-            </p>
-            <h2 className="mt-3 text-balance text-[34px] font-semibold leading-[1.08] tracking-tight text-white sm:text-[44px]">
-              The label reads like a recipe, because it is one.
-            </h2>
-            <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-white/70">
-              No fillers. No added colour. No anti-caking agents. Every ingredient
-              is named, sourced and there for a reason. If we wouldn't put it in
-              our own kitchen, it doesn't go in the pouch.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-4">
-              {[
-                { k: "Byadgi", v: "Karnataka" },
-                { k: "Tellicherry", v: "Kerala" },
-                { k: "Cardamom", v: "Idukki" },
-                { k: "Coriander", v: "Tamil Nadu" },
-              ].map((s) => (
-                <div key={s.k}>
-                  <div className="text-[15px] font-semibold text-white">{s.k}</div>
-                  <div className="text-[12px] text-white/55">{s.v}</div>
+                  <h4 className="text-[16px] font-semibold leading-snug text-zinc-900">{v.title}</h4>
+                  <p className="mt-2.5 text-[14px] leading-[1.65] text-zinc-500">{v.body}</p>
                 </div>
-              ))}
-            </div>
+                <div className="mt-6 h-px w-8 bg-zinc-200 transition-all duration-300 group-hover:w-14 group-hover:bg-primary/30" />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Bottom Marquee ── */}
+      <div className="border-t border-zinc-100 py-4 sm:py-5">
+        <div className="flex overflow-hidden">
+          <div className="flex shrink-0 animate-marquee items-center gap-6 pr-6 sm:gap-10 sm:pr-10" style={{ animationDirection: "reverse", animationDuration: "28s" }}>
+            {Array.from({ length: 20 }).map((_, i) => (
+              <span
+                key={i}
+                className="whitespace-nowrap text-[13px] font-medium uppercase tracking-[0.2em] text-zinc-300 select-none"
+              >
+                Small-batch · Stone-ground · Sourced from origin · Nothing to hide · Built for the modern stove&nbsp;&nbsp;
+              </span>
+            ))}
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
 
 export function Recipes() {
   const go = useUI((s) => s.go);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const o = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.setAttribute("data-revealed", "");
+            o.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.1 }
+    );
+    ref.current.querySelectorAll("[data-reveal]").forEach((el) => o.observe(el));
+    return () => o.disconnect();
+  }, []);
+
+  const [featured, ...rest] = recipes;
+
   return (
-    <section className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-      <SectionHeader
-        eyebrow="From the kitchen"
-        title="Recipes built around the blend"
-        description="Three dishes that show what a proper masala can do — each tested, each under 30 minutes."
-      />
-      <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
-        {recipes.map((r, i) => (
-          <motion.button
-            key={r.id}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+    <section ref={ref} className="bg-zinc-50/60">
+      <div className="mx-auto max-w-[1200px] px-6 py-16 sm:px-10 sm:py-20 lg:px-16 lg:py-28">
+        {/* header */}
+        <div
+          data-reveal
+          style={{ transition: "opacity 0.6s ease, transform 0.6s ease", opacity: 0, transform: "translateY(20px)" }}
+        >
+          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
+            From the kitchen
+          </p>
+          <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-zinc-900 sm:text-[38px] lg:text-[42px]">
+            Recipes built around the blend
+          </h2>
+          <p className="mt-3 max-w-lg text-[15px] leading-[1.7] text-zinc-500">
+            Three dishes that show what a proper masala can do — each tested, each under 30 minutes.
+          </p>
+        </div>
+
+        {/* grid */}
+        <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-5 lg:grid-rows-2">
+          {/* featured — spans 2 rows on desktop */}
+          <button
+            data-reveal
             onClick={() => go({ name: "recipes" })}
-            className="group flex flex-col overflow-hidden rounded-[6px] border border-border bg-card text-left transition-shadow duration-300 hover:shadow-premium"
+            className="group relative flex flex-col overflow-hidden rounded-sm border border-zinc-200 bg-white text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-200/60 lg:col-span-3 lg:row-span-2"
+            style={{ transition: "opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s", opacity: 0, transform: "translateX(-28px)" }}
           >
-            <div className="relative aspect-[5/3] overflow-hidden">
-              <SpiceVisual
-                hue={r.hue}
-                name={r.title}
-                seed={r.id}
-                className="h-full w-full transition-transform duration-700 group-hover:scale-[1.05]"
-              />
-              <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-[4px] bg-card/90 px-2.5 py-1 text-[11px] font-medium text-foreground backdrop-blur-sm">
-                <MapPin className="h-3 w-3 text-primary" /> {r.region}
+            <div className="relative flex-1 overflow-hidden">
+              <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+                <SpiceVisual
+                  hue={featured.hue}
+                  name={featured.title}
+                  seed={featured.id}
+                  className="h-full w-full"
+                />
+              </div>
+              <div className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-sm bg-white/90 px-2.5 py-1 text-[11px] font-medium text-zinc-700 backdrop-blur-sm">
+                <MapPin className="h-3 w-3 text-primary" /> {featured.region}
+              </div>
+              <div className="absolute right-5 top-5 text-[80px] font-bold leading-none text-white/10 select-none sm:text-[100px] lg:text-[120px]">
+                01
               </div>
             </div>
-            <div className="flex flex-1 flex-col p-5">
-              <h3 className="text-[18px] font-semibold leading-snug text-foreground">{r.title}</h3>
-              <p className="mt-2 line-clamp-2 text-[13.5px] leading-relaxed text-muted-foreground">{r.excerpt}</p>
-              <div className="mt-4 flex items-center gap-4 border-t border-border pt-4 text-[12px] text-muted-foreground">
+            <div className="flex flex-col gap-3 p-6 sm:p-8">
+              <h3 className="text-[24px] font-semibold leading-snug text-zinc-900 sm:text-[28px]">
+                {featured.title}
+              </h3>
+              <p className="text-[15px] leading-[1.7] text-zinc-500">
+                {featured.excerpt}
+              </p>
+              <div className="flex items-center gap-5 border-t border-zinc-100 pt-4 text-[13px] text-zinc-400">
                 <span className="flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5" /> {r.time}
+                  <Clock className="h-3.5 w-3.5" /> {featured.time}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5" /> Serves {r.serves}
+                  <Users className="h-3.5 w-3.5" /> Serves {featured.serves}
                 </span>
-                <span className="ml-auto inline-flex items-center gap-1 font-semibold text-foreground">
-                  Read <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <span className="ml-auto inline-flex items-center gap-1 font-semibold text-zinc-900">
+                  Read
+                  <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </span>
               </div>
             </div>
-          </motion.button>
-        ))}
+          </button>
+
+          {/* smaller cards — stacked on right */}
+          {rest.map((r, i) => (
+            <button
+              key={r.id}
+              data-reveal
+              onClick={() => go({ name: "recipes" })}
+              className="group relative flex flex-col overflow-hidden rounded-sm border border-zinc-200 bg-white text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-200/60 lg:col-span-2"
+              style={{ transition: `opacity 0.7s ease ${0.15 + i * 0.1}s, transform 0.7s ease ${0.15 + i * 0.1}s`, opacity: 0, transform: "translateX(28px)" }}
+            >
+              <div className="relative aspect-[5/3] overflow-hidden">
+                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-[1.03]">
+                  <SpiceVisual
+                    hue={r.hue}
+                    name={r.title}
+                    seed={r.id}
+                    className="h-full w-full"
+                  />
+                </div>
+                <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-sm bg-white/90 px-2.5 py-1 text-[11px] font-medium text-zinc-700 backdrop-blur-sm">
+                  <MapPin className="h-3 w-3 text-primary" /> {r.region}
+                </div>
+                <div className="absolute right-4 top-3 text-[48px] font-bold leading-none text-white/10 select-none sm:text-[56px]">
+                  0{i + 2}
+                </div>
+              </div>
+              <div className="flex flex-1 flex-col gap-2 p-5 sm:p-6">
+                <h3 className="text-[19px] font-semibold leading-snug text-zinc-900">
+                  {r.title}
+                </h3>
+                <p className="text-[14px] leading-[1.65] text-zinc-500">
+                  {r.excerpt}
+                </p>
+                <div className="mt-auto flex items-center gap-4 border-t border-zinc-100 pt-4 text-[12px] text-zinc-400">
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" /> {r.time}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Users className="h-3.5 w-3.5" /> Serves {r.serves}
+                  </span>
+                  <span className="ml-auto inline-flex items-center gap-1 font-semibold text-zinc-900">
+                    Read
+                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
 
 export function Testimonials() {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!ref.current) return;
+    const o = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.setAttribute("data-revealed", "");
+            o.unobserve(e.target);
+          }
+        }),
+      { threshold: 0.1 }
+    );
+    ref.current.querySelectorAll("[data-reveal]").forEach((el) => o.observe(el));
+    return () => o.disconnect();
+  }, []);
+
+  const [featured, ...rest] = testimonials;
+
   return (
-    <section className="bg-secondary/30">
-      <div className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <SectionHeader
-          eyebrow="Trusted in 42,000 kitchens"
-          title="What families actually say"
-          description="From Bengaluru to Dubai to London — the reviews that keep us grinding."
-        />
-        <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((t, i) => (
-            <motion.figure
-              key={t.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-              className="flex flex-col rounded-[6px] border border-border bg-card p-6"
-            >
-              <div className="mb-3 flex">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star
-                    key={j}
-                    className={j < t.rating ? "h-4 w-4 fill-turmeric text-turmeric" : "h-4 w-4 text-border"}
-                  />
-                ))}
-              </div>
-              <blockquote className="flex-1 text-[15px] leading-relaxed text-foreground/90">
-                "{t.quote}"
-              </blockquote>
-              <figcaption className="mt-5 border-t border-border pt-4">
-                <div className="text-[14px] font-semibold text-foreground">{t.name}</div>
-                <div className="text-[12px] text-muted-foreground">
-                  {t.role} · {t.location}
-                </div>
-                <div className="mt-2 text-[11px] font-medium uppercase tracking-wide text-primary">
-                  {t.product}
-                </div>
-              </figcaption>
-            </motion.figure>
-          ))}
+    <section ref={ref} className="bg-white">
+      <div className="mx-auto max-w-[1200px] px-6 py-16 sm:px-10 sm:py-20 lg:px-16 lg:py-28">
+        {/* header */}
+        <div
+          data-reveal
+          style={{ transition: "opacity 0.6s ease, transform 0.6s ease", opacity: 0, transform: "translateY(20px)" }}
+        >
+          <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-primary">
+            Trusted in 42,000 kitchens
+          </p>
+          <h2 className="mt-3 text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-zinc-900 sm:text-[38px] lg:text-[42px]">
+            What families actually say
+          </h2>
+          <p className="mt-3 max-w-lg text-[15px] leading-[1.7] text-zinc-500">
+            From Bengaluru to Dubai to London — the reviews that keep us grinding.
+          </p>
+        </div>
+
+        {/* masonry wall */}
+        <div
+          data-reveal
+          className="mt-14 [column-fill:_balance] columns-1 gap-5 sm:columns-2 lg:columns-3"
+          style={{ transition: "opacity 0.7s ease 0.1s, transform 0.7s ease 0.1s", opacity: 0, transform: "translateY(24px)" }}
+        >
+          {testimonials.map((t, i) => {
+            const isFeatured = i === 0;
+            const hue = [0, 27, 145, 80, 45, 145][i % 6];
+            const bgTint = `oklch(0.975 0.012 ${hue})`;
+
+            return (
+              <figure
+                key={t.id}
+                className={`mb-5 inline-block w-full break-inside-avoid flex flex-col rounded-sm border border-zinc-200 ${
+                  isFeatured ? "p-7 sm:p-8" : "p-5 sm:p-6"
+                }`}
+                style={{ background: bgTint }}
+              >
+                {isFeatured && (
+                  <div className="mb-4 text-[60px] font-bold leading-none text-primary/15 select-none">
+                    &ldquo;
+                  </div>
+                )}
+
+                <blockquote
+                  className={`flex-1 leading-[1.7] text-zinc-700 ${
+                    isFeatured
+                      ? "text-[19px] sm:text-[21px]"
+                      : "text-[15px]"
+                  }`}
+                >
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+
+                <figcaption className={`border-t border-zinc-200/60 ${isFeatured ? "mt-6 pt-5" : "mt-4 pt-4"}`}>
+                  <div className="text-[14px] font-semibold text-zinc-900">{t.name}</div>
+                  <div className="mt-0.5 text-[12px] text-zinc-400">
+                    {t.role} · {t.location}
+                  </div>
+                  <div className={`inline-block rounded-sm bg-white/70 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-primary ${
+                    isFeatured ? "mt-3" : "mt-2"
+                  }`}>
+                    {t.product}
+                  </div>
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       </div>
     </section>
