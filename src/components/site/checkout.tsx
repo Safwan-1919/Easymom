@@ -257,7 +257,7 @@ export function Checkout() {
                         {lines.map((l) => (
                           <div key={l.productId} className="flex gap-3">
                             <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[6px]">
-                              <SpiceVisual hue={l.hue} name={l.name} seed={l.productId} className="h-full w-full" />
+                              <img src={l.img} alt={l.name} className="h-full w-full object-cover" />
                             </div>
                             <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
                               <div className="min-w-0">

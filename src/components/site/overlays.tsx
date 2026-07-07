@@ -107,7 +107,7 @@ export function CartDrawer() {
                           className="flex gap-3 rounded-[6px] border border-border bg-card p-3"
                         >
                           <div className="h-16 w-16 shrink-0 overflow-hidden rounded-[6px]">
-                            <SpiceVisual hue={l.hue} name={l.name} seed={l.productId} className="h-full w-full" />
+                            <img src={l.img} alt={l.name} className="h-full w-full object-cover" />
                           </div>
                           <div className="flex min-w-0 flex-1 flex-col">
                             <div className="flex items-start justify-between gap-2">
@@ -437,7 +437,7 @@ export function WishlistDrawer() {
                         }}
                         className="h-16 w-16 shrink-0 overflow-hidden rounded-[6px]"
                       >
-                        <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="h-full w-full" />
+                        <img src={p.img} alt={p.name} className="h-full w-full object-cover" />
                       </button>
                       <div className="flex min-w-0 flex-1 flex-col">
                         <p className="line-clamp-2 text-[13.5px] font-semibold leading-snug">{p.name}</p>

@@ -204,7 +204,7 @@ export function Nav() {
                           className="flex w-full items-center gap-3 rounded-[4px] p-1 text-left transition hover:bg-card"
                         >
                           <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[6px]">
-                            <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="h-full w-full" />
+                            <img src={p.img} alt={p.name} className="h-full w-full object-cover" />
                           </div>
                           <div className="min-w-0">
                             <p className="truncate text-[13px] font-medium text-foreground">{p.name}</p>

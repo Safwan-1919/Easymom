@@ -296,15 +296,11 @@ export function ProductView() {
         {/* visual */}
         <div>
           <div className="relative overflow-hidden rounded-[6px] border border-border">
-            {p.img || p.images ? (
-              <img
-                src={p.images ? p.images[selectedImg] : p.img}
-                alt={p.name}
-                className="aspect-square w-full object-cover"
-              />
-            ) : (
-              <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="aspect-square w-full" />
-            )}
+            <img
+              src={p.images ? p.images[selectedImg] : p.img}
+              alt={p.name}
+              className="aspect-square w-full object-cover"
+            />
           </div>
           {p.images && p.images.length > 1 ? (
             <div className="mt-3 flex gap-2">
@@ -499,7 +495,7 @@ export function RecipesView() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr]">
                 <div className="relative aspect-[5/3] lg:aspect-auto">
-                  <SpiceVisual hue={r.hue} name={r.title} seed={r.id} className="h-full w-full" />
+                  <img src={products.find((p) => p.slug === r.productSlug)?.img || ""} alt={r.title} className="h-full w-full object-cover" />
                   <div className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-[4px] bg-card/90 px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm">
                     <MapPin className="h-3 w-3 text-primary" /> {r.region}
                   </div>

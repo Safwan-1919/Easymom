@@ -54,7 +54,7 @@ export function QuickView() {
 
             {/* visual */}
             <div className="relative aspect-square sm:aspect-auto">
-              <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="h-full w-full" />
+              <img src={p.images ? p.images[0] : p.img} alt={p.name} className="h-full w-full object-cover" />
               <div className="absolute left-4 top-4 flex flex-col gap-1.5">
                 {p.bestSeller && (
                   <span className="rounded-[4px] bg-foreground/90 px-2 py-0.5 text-[10px] font-semibold uppercase text-white">

@@ -89,12 +89,10 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         ) : (
-          <SpiceVisual
-            hue={product.hue}
-            name={product.name}
-            weight={product.weight}
-            seed={product.id}
-            className="h-full w-full transition-transform duration-700 ease-out group-hover:scale-105"
+          <img
+            src={product.img}
+            alt={product.name}
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           />
         )}
         {/* badges */}
