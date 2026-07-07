@@ -342,7 +342,7 @@ export function SearchOverlay() {
                     className="flex w-full items-center gap-3 rounded-[6px] p-2.5 text-left transition hover:bg-secondary"
                   >
                     <div className="h-12 w-12 shrink-0 overflow-hidden rounded-[6px]">
-                      <SpiceVisual hue={p.hue} name={p.name} seed={p.id} className="h-full w-full" />
+                      <img src={p.img} alt={p.name} className="h-full w-full object-cover" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[14px] font-medium text-foreground">{p.name}</p>
